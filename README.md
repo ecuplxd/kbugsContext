@@ -1,4 +1,4 @@
-# WebTool
+# kbugsContext
 
 A GUI tool for switch k8s context, inspired by [KubeContext](https://github.com/turkenh/KubeContext).
 
