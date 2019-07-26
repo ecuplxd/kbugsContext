@@ -1,9 +1,9 @@
 [Desktop Entry]
 Categories=Application
-Comment=A tool switch k8s contexts
+Comment=A GUI tool switch k8s contexts
 Exec=kbugscontext
 Icon=kbugscontext
-Name=kbugscontext
+Name=KBugsContext
 StartupNotify=true
 Terminal=false
 Type=Application

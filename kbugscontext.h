@@ -29,7 +29,7 @@ class KBugsContext : public QWidget {
  public:
   void initUI();
   void initTray();
-  void initActions();
+  void initListViewItemActions();
   void addCtxToListWidget(const QFileInfoList& configs);
   void clearCtxConfigForm();
   void addCtxConfigToForm(const QString& path, const Context& ctx);
@@ -44,6 +44,8 @@ class KBugsContext : public QWidget {
   void saveKubeConfig(const QString& path, const QString& ctxName);
   void selectCtxItemByIndex(const int& index, const bool& clicked = true,
                             const bool& ignoredCheckIndex = false);
+
+  bool ctxIsEmpty();
 
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>668</width>
+    <width>728</width>
     <height>475</height>
    </rect>
   </property>
@@ -47,7 +47,7 @@
        <item row="0" column="1">
         <widget class="QLineEdit" name="kubeConfigPathLineEdit">
          <property name="placeholderText">
-          <string>kubeconfig 文件或目录（*.config 文件将被加入）</string>
+          <string>kubeconfig file/dir(only *.config will be added)</string>
          </property>
         </widget>
        </item>

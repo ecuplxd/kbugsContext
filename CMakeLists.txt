@@ -60,5 +60,6 @@ install(TARGETS ${APP_NAME}
 if (UNIX)
     install(FILES kbugscontext.desktop DESTINATION share/applications)
     install(FILES icons/kbugscontext.png DESTINATION share/icons/hicolor/256x256/apps)
+    install(FILES icons/kbugscontext.png DESTINATION share/pixmaps)
 endif()
 

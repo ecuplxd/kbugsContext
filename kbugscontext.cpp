@@ -27,9 +27,9 @@ using namespace std;
 KBugsContext::KBugsContext(QWidget* parent)
     : QWidget(parent), ui(new Ui::KBugsContext) {
   ui->setupUi(this);
-  initUI();
   initTray();
-  initActions();
+  initUI();
+  initListViewItemActions();
 }
 
 KBugsContext::~KBugsContext() { delete ui; }
@@ -40,7 +40,7 @@ void KBugsContext::initTray() {
   tray = new QSystemTrayIcon(this);
   tray->setIcon(icon);
   //  not work
-  tray->setToolTip(tr("最萌最可爱测试"));
+  tray->setToolTip(tr("KBugsContext"));
 
   importKubeConfigFileAction = new QAction(tr("Import Kubeconfig File"), this);
   manageCtxActions = new QAction(tr("Manage Contexts"), this);
@@ -55,16 +55,11 @@ void KBugsContext::initTray() {
   ctxMenu = new QMenu(trayMenu);
   ctxMenuActions = new QActionGroup(ctxMenu);
 
-  for (int i = 0; i < ctxsModel->rowCount(); ++i) {
-    addTrayCtxMenuAction(*ctxsModel->item(i));
-  }
-
-  ctxMenu->addActions(ctxMenuActions->actions());
   trayMenu->addMenu(ctxMenu);
 
   ctxMenu->setTitle(tr("SWitch Context"));
 
-  trayMenu->addAction(importKubeConfigFileAction);
+  // trayMenu->addAction(importKubeConfigFileAction);
   trayMenu->addAction(manageCtxActions);
   trayMenu->addSeparator();
   trayMenu->addAction(quitAction);
@@ -101,7 +96,7 @@ void KBugsContext::initUI() {
   selectCtxItemByIndex(0);
 }
 
-void KBugsContext::initActions() {
+void KBugsContext::initListViewItemActions() {
   ui->ctxListView->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->ctxListView, SIGNAL(customContextMenuRequested(const QPoint&)),
           this, SLOT(showListViewItemMenu(const QPoint&)));
@@ -145,6 +140,7 @@ void KBugsContext::addCtxModel(const QString& path, const Context& ctx) {
   ctxtItem->setToolTip(path);
   ctxtItem->setData(QVariant::fromValue(ctx));
   ctxsModel->appendRow(ctxtItem);
+  addTrayCtxMenuAction(*ctxtItem);
 }
 
 void KBugsContext::addTrayCtxMenuAction(const QStandardItem& ctxItem) {
@@ -159,6 +155,7 @@ void KBugsContext::addTrayCtxMenuAction(const QStandardItem& ctxItem) {
   ctxAction->setData(ctxItem.toolTip());
   connect(ctxAction, &QAction::triggered, this,
           [ctxAction, this]() { this->switchCtx(*ctxAction); });
+  ctxMenu->addAction(ctxAction);
 }
 
 void KBugsContext::on_revertCtxConfigBtn_clicked() {
@@ -224,7 +221,7 @@ int KBugsContext::findActionIndex(const QAction& action) {
 
 void KBugsContext::selectCtxItemByIndex(const int& index, const bool& clicked,
                                         const bool& ignoredCheckIndex) {
-  if (index > ctxsModel->rowCount()) {
+  if (index >= ctxsModel->rowCount()) {
     return;
   }
   auto indexModel = ctxsModel->index(index, 0);
@@ -512,6 +509,10 @@ Context KBugsContext::getCurCtx() {
 }
 
 void KBugsContext::toggleRevertAndApply() {
+  if (ctxIsEmpty()) {
+    return;
+  }
+
   Context ctx = getCurCtx();
   bool changed = false;
 
@@ -620,9 +621,14 @@ void KBugsContext::on_fromServerBtn_clicked() {
   }
 }
 
+bool KBugsContext::ctxIsEmpty() { return ctxsModel->rowCount() == 0; }
+
 void KBugsContext::keyPressEvent(QKeyEvent* event) {
   if (event->key() == Qt::Key_Tab &&
       event->modifiers() == Qt::ControlModifier) {
+    if (ctxIsEmpty()) {
+      return;
+    }
     curCtxItemIndex += 1;
     if (curCtxItemIndex == ctxsModel->rowCount()) {
       curCtxItemIndex = 0;
@@ -633,6 +639,9 @@ void KBugsContext::keyPressEvent(QKeyEvent* event) {
 
 void KBugsContext::keyReleaseEvent(QKeyEvent* event) {
   if (event->key() == Qt::Key_Control) {
+    if (ctxIsEmpty()) {
+      return;
+    }
     selectCtxItemByIndex(curCtxItemIndex, true, true);
     switchCtx();
   }

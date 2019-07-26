@@ -9,6 +9,6 @@ mkdir build && cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 make -j4
 
-if [ $1 == "install" ]; then
+if [ "$1" == "install" ]; then
     sudo make install
 fi
