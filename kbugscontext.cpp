@@ -27,12 +27,34 @@ using namespace std;
 KBugsContext::KBugsContext(QWidget* parent)
     : QWidget(parent), ui(new Ui::KBugsContext) {
   ui->setupUi(this);
+  restoreSettings();
+
   initTray();
   initUI();
   initListViewItemActions();
 }
 
-KBugsContext::~KBugsContext() { delete ui; }
+KBugsContext::~KBugsContext() {
+  storeSettings();
+  delete ui; 
+}
+
+void KBugsContext::storeSettings() {
+  settings.beginGroup("solodevice_mainwindow");
+  settings.setValue("geometry", saveGeometry());
+  settings.setValue("kubeConfigDir", kubeConfigDir);
+  settings.endGroup();
+}
+
+void KBugsContext::restoreSettings(bool showWindow) {
+  settings.beginGroup("solodevice_mainwindow");
+  kubeConfigDir = settings.value("kubeConfigDir").toString();
+  settings.endGroup();
+  if (showWindow) {
+    show();
+    restoreGeometry(settings.value("geometry").toByteArray());
+  }
+}
 
 void KBugsContext::initTray() {
   QIcon icon(":/images/res/images/tray.ico");
@@ -451,9 +473,7 @@ void KBugsContext::on_clusterCombox_currentIndexChanged(int index) {
 }
 
 void KBugsContext::closeEvent(QCloseEvent* event) {
-  settings.beginGroup("solodevice_mainwindow");
-  settings.setValue("geometry", saveGeometry());
-  settings.endGroup();
+  storeSettings();
 
   hide();
 #ifdef QT_NO_DEBUG
@@ -463,12 +483,7 @@ void KBugsContext::closeEvent(QCloseEvent* event) {
 #endif  // ifdef QT_NO_DEBUG
 }
 
-void KBugsContext::showNormal() {
-  settings.beginGroup("solodevice_mainwindow");
-  restoreGeometry(settings.value("geometry").toByteArray());
-  settings.endGroup();
-  show();
-}
+void KBugsContext::showNormal() { restoreSettings(true); }
 
 void KBugsContext::trayIsActived(QSystemTrayIcon::ActivationReason reason) {
   switch (reason) {

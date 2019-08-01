@@ -30,6 +30,8 @@ class KBugsContext : public QWidget {
   void initUI();
   void initTray();
   void initListViewItemActions();
+  void storeSettings();
+  void restoreSettings(bool showWindow = false);
   void addCtxToListWidget(const QFileInfoList& configs);
   void clearCtxConfigForm();
   void addCtxConfigToForm(const QString& path, const Context& ctx);
