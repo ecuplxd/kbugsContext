@@ -13,7 +13,7 @@ struct Cluster {
   QString server;
 };
 
-Q_DECLARE_METATYPE(Cluster);
+Q_DECLARE_METATYPE(Cluster)
 
 struct Context {
   QString cluster;
@@ -22,7 +22,7 @@ struct Context {
   QString nameSpace;
 };
 
-Q_DECLARE_METATYPE(Context);
+Q_DECLARE_METATYPE(Context)
 
 struct User {
   QString name;
@@ -31,7 +31,7 @@ struct User {
   QString clientKeyData;
 };
 
-Q_DECLARE_METATYPE(User);
+Q_DECLARE_METATYPE(User)
 
 class KubeConfig {
  public:
@@ -46,6 +46,6 @@ class KubeConfig {
   QList<User> users;
 };
 
-Q_DECLARE_METATYPE(KubeConfig);
+Q_DECLARE_METATYPE(KubeConfig)
 
 #endif  // CONFIG_H

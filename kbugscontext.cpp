@@ -36,7 +36,7 @@ KBugsContext::KBugsContext(QWidget* parent)
 
 KBugsContext::~KBugsContext() {
   storeSettings();
-  delete ui; 
+  delete ui;
 }
 
 void KBugsContext::storeSettings() {
@@ -49,11 +49,11 @@ void KBugsContext::storeSettings() {
 void KBugsContext::restoreSettings(bool showWindow) {
   settings.beginGroup("solodevice_mainwindow");
   kubeConfigDir = settings.value("kubeConfigDir").toString();
-  settings.endGroup();
   if (showWindow) {
-    show();
     restoreGeometry(settings.value("geometry").toByteArray());
+    show();
   }
+  settings.endGroup();
 }
 
 void KBugsContext::initTray() {
@@ -190,7 +190,11 @@ void KBugsContext::on_revertCtxConfigBtn_clicked() {
 }
 
 void KBugsContext::on_changeKubeConfigDirBtn_clicked() {
-  QString dir = "./";
+  if (this->isHidden()) {
+    //    if not show the window, it will crash after file dialog close
+    showNormal();
+  }
+  QString dir = kubeConfigDir;
 
   if (!kubeConfigDir.isEmpty()) {
     dir = kubeConfigDir;

@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QDesktopWidget>
 #include "kbugscontext.h"
 
 int main(int argc, char *argv[]) {
@@ -10,7 +11,9 @@ int main(int argc, char *argv[]) {
 
   KBugsContext w;
 
+  w.move((a.desktop()->width() - w.width()) / 2,
+         (a.desktop()->height() - w.height()) / 2);
   w.show();
-
+  
   return a.exec();
 }
