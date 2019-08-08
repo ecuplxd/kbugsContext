@@ -49,6 +49,9 @@ class KBugsContext : public QWidget {
 
   bool ctxIsEmpty();
 
+  void doAction(QString actionName);
+  void emitAddCtxs();
+
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
 
@@ -62,6 +65,11 @@ class KBugsContext : public QWidget {
   void closeEvent(QCloseEvent* event);
   void keyPressEvent(QKeyEvent* event);
   void keyReleaseEvent(QKeyEvent* event);
+
+ signals:
+  void showCtxInMenuBar(const QString& label);
+  void addCtxs(const QStringList ctxs);
+  void ctxNameChanged(const int& ctxIndex, const QString& ctxName);
 
  private slots:
 
@@ -79,6 +87,7 @@ class KBugsContext : public QWidget {
 
   void showListViewItemMenu(const QPoint&);
   void switchCtx();
+  void switchCtx(const int& index);
   void switchCtx(const QAction& action);
   void execSwitchCtxCommand(const QString& path);
   void showNormal();
@@ -96,7 +105,6 @@ class KBugsContext : public QWidget {
   QMenu* menu;
 
   QSystemTrayIcon* tray;
-  QSystemTrayIcon* ctxTray;
   QMenu* trayMenu;
   QMenu* ctxMenu;
   QAction* importKubeConfigFileAction;

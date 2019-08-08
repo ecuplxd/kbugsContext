@@ -79,18 +79,16 @@ void KBugsContext::initTray() {
 
   trayMenu->addMenu(ctxMenu);
 
-  ctxMenu->setTitle(tr("SWitch Context"));
+  ctxMenu->setTitle(tr("Switch Context"));
 
-  // trayMenu->addAction(importKubeConfigFileAction);
+  trayMenu->addAction(importKubeConfigFileAction);
   trayMenu->addAction(manageCtxActions);
   trayMenu->addSeparator();
   trayMenu->addAction(quitAction);
-
-  ctxTray = new QSystemTrayIcon(this);
-  ctxTray->hide();
-
   tray->setContextMenu(trayMenu);
+#ifdef Q_OS_MAC
   tray->show();
+#endif
 
   connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this,
           SLOT(trayIsActived(QSystemTrayIcon::ActivationReason)));
@@ -163,6 +161,9 @@ void KBugsContext::addCtxModel(const QString& path, const Context& ctx) {
   ctxtItem->setData(QVariant::fromValue(ctx));
   ctxsModel->appendRow(ctxtItem);
   addTrayCtxMenuAction(*ctxtItem);
+  QStringList ctxs;
+  ctxs << ctx.name;
+  emit addCtxs(ctxs);
 }
 
 void KBugsContext::addTrayCtxMenuAction(const QStandardItem& ctxItem) {
@@ -211,17 +212,18 @@ void KBugsContext::on_changeKubeConfigDirBtn_clicked() {
 }
 
 void KBugsContext::on_toggleCtxCheckBox_toggled(bool checked) {
-  if (checked) {
-    ctxTray->show();
-  } else {
-    ctxTray->hide();
+  if (!checked || ctxIsEmpty() || lastActiveCtxIndex == -1) {
+    emit showCtxInMenuBar("");
+    return;
   }
+  QStandardItem* ctxItem = ctxsModel->item(lastActiveCtxIndex);
+  Context ctx = ctxItem->data().value<Context>();
+  emit showCtxInMenuBar(ctx.name);
 }
 
 void KBugsContext::switchCtx(const QAction& action) {
   QString path = action.toolTip();
 
-  auto actions = ctxMenuActions->actions();
   int index = findActionIndex(action);
 
   if (index != -1) {
@@ -257,6 +259,12 @@ void KBugsContext::selectCtxItemByIndex(const int& index, const bool& clicked,
   }
 }
 
+void KBugsContext::switchCtx(const int& index) {
+  curCtxItemIndex = index;
+  selectCtxItemByIndex(index);
+  switchCtx();
+}
+
 void KBugsContext::switchCtx() {
   Context context = getCurCtx();
 
@@ -280,8 +288,6 @@ void KBugsContext::saveKubeConfig(const QString& path, const QString& ctxName) {
   YAML::Node configNode = YAML::LoadFile(path.toStdString());
   configNode["current-context"] = ctxName.toStdString();
   saveKubeConfig(path, configNode);
-  // TODO: tray 实现 text
-  //  ctxTray->setIcon(KBugsContext::text2Pixmap(ctxName));
 }
 
 void KBugsContext::on_ctxListView_clicked(const QModelIndex& index,
@@ -309,6 +315,10 @@ void KBugsContext::updateCtxModel(const QString& newCtxName,
   // 优化
   Context ctx = ctxItem->data().value<Context>();
 
+  if (ctx.name != newCtxName) {
+    emit ctxNameChanged(index.row(), newCtxName);
+  }
+
   ctx.name = newCtxName;
   ctx.nameSpace = newNameSpace;
   ctx.cluster = newCluster;
@@ -321,6 +331,9 @@ void KBugsContext::updateCtxModel(const QString& newCtxName,
   //  ctxsModel->setItem(index.row(), 0, ctxtItem);
   ctxMenuActions->actions()[index.row()]->setText(newCtxName);
   toggleRevertAndApply();
+  if (ui->toggleCtxCheckBox->isChecked()) {
+    on_toggleCtxCheckBox_toggled(true);
+  }
 }
 
 void KBugsContext::updateCtxModel(const int& index) {
@@ -333,6 +346,9 @@ void KBugsContext::updateCtxModel(const int& index) {
   Context ctx = ctxItem->data().value<Context>();
   ctxItem->setText(ctx.name + " " + tr("(Current Context)"));
   lastActiveCtxIndex = index;
+  if (ui->toggleCtxCheckBox->isChecked()) {
+    on_toggleCtxCheckBox_toggled(true);
+  }
 }
 
 QList<Context> KBugsContext::parseConfigCtxs(const QString& path) {
@@ -480,11 +496,7 @@ void KBugsContext::closeEvent(QCloseEvent* event) {
   storeSettings();
 
   hide();
-#ifdef QT_NO_DEBUG
   event->ignore();
-#else   // ifdef QT_NO_DEBUG
-  event->accept();
-#endif  // ifdef QT_NO_DEBUG
 }
 
 void KBugsContext::showNormal() { restoreSettings(true); }
@@ -664,4 +676,23 @@ void KBugsContext::keyReleaseEvent(QKeyEvent* event) {
     selectCtxItemByIndex(curCtxItemIndex, true, true);
     switchCtx();
   }
+}
+
+void KBugsContext::doAction(QString actionName) {
+  if (actionName == "SwitchContext") {
+  } else if (actionName == "ImportKubeconfigFile") {
+    on_changeKubeConfigDirBtn_clicked();
+  } else if (actionName == "ManageContexts") {
+    showNormal();
+  } else if (actionName == "Quit") {
+    qApp->quit();
+  } else {
+  }
+}
+
+void KBugsContext::emitAddCtxs() {
+  QStringList ctxs;
+  auto actions = ctxMenuActions->actions();
+  foreach (auto action, actions) { ctxs << action->text(); }
+  emit addCtxs(ctxs);
 }

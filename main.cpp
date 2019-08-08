@@ -1,5 +1,7 @@
+#include <ctxindicator.h>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QObject>
 #include "kbugscontext.h"
 
 int main(int argc, char *argv[]) {
@@ -11,9 +13,29 @@ int main(int argc, char *argv[]) {
 
   KBugsContext w;
 
+#if defined(Q_OS_LINUX)
+  CtxIndicator ctx(argc, argv);
+  QObject::connect(&w, &KBugsContext::showCtxInMenuBar, &ctx,
+                   &CtxIndicator::setCtxLabel);
+  QObject::connect(&w, &KBugsContext::addCtxs, &ctx,
+                   &CtxIndicator::addCtxsToAction);
+  QObject::connect(&w, &KBugsContext::showCtxInMenuBar, &ctx,
+                   &CtxIndicator::setCtxLabel);
+  QObject::connect(&w, &KBugsContext::ctxNameChanged, &ctx,
+                   &CtxIndicator::updateCtxAction);
+
+  QObject::connect(&ctx, &CtxIndicator::actionActive, &w,
+                   &KBugsContext::doAction);
+  QObject::connect(&ctx, SIGNAL(ctxIndexChanged(const int &)), &w,
+                   SLOT(switchCtx(const int &)));
+
+#endif
+
   w.move((a.desktop()->width() - w.width()) / 2,
          (a.desktop()->height() - w.height()) / 2);
   w.show();
-  
+
+  w.emitAddCtxs();
+
   return a.exec();
 }

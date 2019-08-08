@@ -28,12 +28,14 @@ SOURCES += \
                 kubeconfig.cpp \
                 loadconfigfromserverdialog.cpp \
                 main.cpp \
-                kbugscontext.cpp
+                kbugscontext.cpp \
+                ctxindicator.cpp
 
 HEADERS += \
                 kubeconfig.h \
                 kbugscontext.h \
-                loadconfigfromserverdialog.h
+                loadconfigfromserverdialog.h \
+                ctxindicator.h
 
 FORMS += \
                 kbugscontext.ui \
@@ -56,3 +58,7 @@ RESOURCES += \
 
 #include(./qtsingleapplication/src/qtsingleapplication.pri)
 
+
+unix: CONFIG += link_pkgconfig
+unix: PKGCONFIG += gtk+-3.0
+unix: PKGCONFIG += appindicator3-0.1
