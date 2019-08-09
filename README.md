@@ -35,10 +35,10 @@ Note: not allow same name in a config file.
 
 ## Note
 some function are not implemented. haha~
-- Set Icon color for this context
-- Show current context in menu bar
-- Add config file from server
-
+- [ ] Set Icon color for this context
+- [x] Show current context in menu bar(Linux Only)
+- [ ] Add config file from server
+- [ ] Remove config item
 
 ## build
 
@@ -48,6 +48,8 @@ First installed all dependent development packages(with `-dev` or `-devel`).
 
 - cmake >= 3.1.0
 - qt5-qtbase-gui >= 5.2（Debian/Ubuntu may be named `qtbase5`）
+- libgtk-3
+- libappindicator3
 
 
 ### Compile

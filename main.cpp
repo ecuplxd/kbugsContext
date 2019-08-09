@@ -1,4 +1,4 @@
-#include <ctxindicator.h>
+#include "./ctxindicator.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QObject>
