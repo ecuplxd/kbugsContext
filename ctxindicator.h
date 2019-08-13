@@ -38,11 +38,13 @@ class CtxIndicator : public QObject {
   inline gchar *qstring2charp(const QString &str);
   void addCtxAction(const QString &name);
   void addAction(const QString &name);
+  GtkMenuItem *findCtxMenuItem(const int &index);
 
  public slots:
-  void setCtxLabel(const QString &label);
-  void addCtxsToAction(const QStringList &ctxs);
-  void updateCtxAction(const int &ctxIndex, const QString &ctxName);
+  void setIndicatorLabel(const QString &label);
+  void addCtxsToIndicatorMenu(const QStringList &ctxs);
+  void updateCtxActionName(const int &ctxIndex, const QString &ctxName);
+  void activeCtx(const int &ctxIndex);
 
  public:
   QThread gtkWorkerThread;
@@ -55,6 +57,7 @@ class CtxIndicator : public QObject {
   GtkWidget *menuItemSWitchContext;
   GtkWidget *lastCtxWidget = nullptr;
   int lastCtxIndex = -1;
+  bool NO_EMIT_FLAG = false;
 
  signals:
   void run();

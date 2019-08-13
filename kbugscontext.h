@@ -70,6 +70,7 @@ class KBugsContext : public QWidget {
   void showCtxInMenuBar(const QString& label);
   void addCtxs(const QStringList ctxs);
   void ctxNameChanged(const int& ctxIndex, const QString& ctxName);
+  void curCtxIndexChanged(const int& ctxIndex);
 
  private slots:
 

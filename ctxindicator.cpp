@@ -10,6 +10,9 @@ void CtxIndicator::activate_action(GtkMenuItem *item, void *p_ctxIndicator) {
 
 void CtxIndicator::toggleCtx(GtkMenuItem *item, void *p_ctxIndicator) {
   CtxIndicator *ctxIndicator = static_cast<CtxIndicator *>(p_ctxIndicator);
+  if (ctxIndicator->NO_EMIT_FLAG) {
+    return;
+  }
   gint index;
 
   g_object_get(ctxIndicator->ctxMenu, "active", &index, NULL);
@@ -81,7 +84,7 @@ void CtxIndicator::initGTK(int argc, char *argv[]) {
       name, path, APP_INDICATOR_CATEGORY_APPLICATION_STATUS, icon);
 
   app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
-  setCtxLabel("");
+  setIndicatorLabel("");
   app_indicator_set_menu(indicator, GTK_MENU(indicatorMenu));
 }
 
@@ -91,7 +94,7 @@ gchar *CtxIndicator::qstring2charp(const QString &str) {
   return ch;
 }
 
-void CtxIndicator::setCtxLabel(const QString &label) {
+void CtxIndicator::setIndicatorLabel(const QString &label) {
   QString str = "";
   if (!label.isEmpty()) {
     str = "  " + label;
@@ -129,7 +132,7 @@ void CtxIndicator::addCtxAction(const QString &name) {
   g_signal_connect(G_OBJECT(menuItem), "toggled", G_CALLBACK(toggleCtx), this);
 }
 
-void CtxIndicator::addCtxsToAction(const QStringList &ctxs) {
+void CtxIndicator::addCtxsToIndicatorMenu(const QStringList &ctxs) {
   for (int i = 0; i < ctxs.size(); ++i) {
     QString ctx = ctxs[i];
     addCtxAction(ctx);
@@ -137,8 +140,15 @@ void CtxIndicator::addCtxsToAction(const QStringList &ctxs) {
   gtk_widget_show_all(indicatorMenu);
 }
 
-void CtxIndicator::updateCtxAction(const int &ctxIndex,
-                                   const QString &ctxName) {
+void CtxIndicator::updateCtxActionName(const int &ctxIndex,
+                                       const QString &ctxName) {
+  GtkMenuItem *item = findCtxMenuItem(ctxIndex);
+  if (item) {
+    gtk_menu_item_set_label(item, qstring2charp(ctxName));
+  }
+}
+
+GtkMenuItem *CtxIndicator::findCtxMenuItem(const int &index) {
   GtkWidget *menu =
       gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuItemSWitchContext));
   if (GTK_IS_CONTAINER(menu)) {
@@ -146,12 +156,26 @@ void CtxIndicator::updateCtxAction(const int &ctxIndex,
     GList *it = NULL;
     int i = 0;
     for (it = children; it; it = it->next) {
-      if (i == ctxIndex) {
-        gtk_menu_item_set_label(GTK_MENU_ITEM(it->data),
-                                qstring2charp(ctxName));
-        break;
+      if (i == index) {
+        return GTK_MENU_ITEM(it->data);
       }
       i++;
     }
+  }
+  return nullptr;
+}
+
+void CtxIndicator::activeCtx(const int &ctxIndex) {
+  GtkMenuItem *item = findCtxMenuItem(ctxIndex);
+  if (item) {
+    NO_EMIT_FLAG = true;
+    if (lastCtxWidget) {
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(lastCtxWidget), FALSE);
+    }
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
+
+    lastCtxIndex = ctxIndex;
+    lastCtxWidget = GTK_WIDGET(item);
+    NO_EMIT_FLAG = false;
   }
 }

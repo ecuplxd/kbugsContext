@@ -273,6 +273,7 @@ void KBugsContext::switchCtx() {
   execSwitchCtxCommand(curConfigPath);
   updateCtxModel(curCtxItemIndex);
   setWindowTitle("KBugsContext (" + context.name + ")");
+  emit curCtxIndexChanged(curCtxItemIndex);
 }
 
 void KBugsContext::execSwitchCtxCommand(const QString& path) {

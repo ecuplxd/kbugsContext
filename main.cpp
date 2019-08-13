@@ -16,13 +16,15 @@ int main(int argc, char *argv[]) {
 #if defined(Q_OS_LINUX)
   CtxIndicator ctx(argc, argv);
   QObject::connect(&w, &KBugsContext::showCtxInMenuBar, &ctx,
-                   &CtxIndicator::setCtxLabel);
+                   &CtxIndicator::setIndicatorLabel);
   QObject::connect(&w, &KBugsContext::addCtxs, &ctx,
-                   &CtxIndicator::addCtxsToAction);
+                   &CtxIndicator::addCtxsToIndicatorMenu);
   QObject::connect(&w, &KBugsContext::showCtxInMenuBar, &ctx,
-                   &CtxIndicator::setCtxLabel);
+                   &CtxIndicator::setIndicatorLabel);
   QObject::connect(&w, &KBugsContext::ctxNameChanged, &ctx,
-                   &CtxIndicator::updateCtxAction);
+                   &CtxIndicator::updateCtxActionName);
+  QObject::connect(&w, &KBugsContext::curCtxIndexChanged, &ctx,
+                   &CtxIndicator::activeCtx);
 
   QObject::connect(&ctx, &CtxIndicator::actionActive, &w,
                    &KBugsContext::doAction);
