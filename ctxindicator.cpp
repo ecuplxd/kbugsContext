@@ -1,4 +1,5 @@
 #include "ctxindicator.h"
+#include <QFile>
 
 void CtxIndicator::activate_action(GtkMenuItem *item, void *p_ctxIndicator) {
   const gchar *name = gtk_menu_item_get_label(item);
@@ -77,11 +78,9 @@ void CtxIndicator::initGTK(int argc, char *argv[]) {
   gtk_widget_show_all(indicatorMenu);
 
   gchar *name = const_cast<char *>("kbugsCurrentContext");
-  gchar *path = const_cast<char *>("kbugscontext");
-  gchar *icon =
-      const_cast<char *>("/home/learning/code/C++/kbugsContext/icons");
+  gchar *iconPath = getIndicatorIconPath();
   indicator = app_indicator_new_with_path(
-      name, path, APP_INDICATOR_CATEGORY_APPLICATION_STATUS, icon);
+      name, iconName, APP_INDICATOR_CATEGORY_OTHER, iconPath);
 
   app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
   setIndicatorLabel("");
@@ -178,4 +177,18 @@ void CtxIndicator::activeCtx(const int &ctxIndex) {
     lastCtxWidget = GTK_WIDGET(item);
     NO_EMIT_FLAG = false;
   }
+}
+
+gchar *CtxIndicator::getIndicatorIconPath() {
+  QString tempPath = "";
+  if (tempDir.isValid()) {
+    tempPath = tempDir.path();
+    qDebug() << "temp dir = " << tempPath;
+    QString iconNameWithExt = QString(QLatin1String(iconName)) + ".png";
+    QFile::copy(":/images/res/images/" + iconNameWithExt,
+                tempPath + "/" + iconNameWithExt);
+  }
+
+  gchar *path = qstring2charp(tempPath);
+  return path;
 }

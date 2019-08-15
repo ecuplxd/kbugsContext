@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QString>
+#include <QTemporaryDir>
 #include <QThread>
 
 class GTKWorker : public QObject {
@@ -39,6 +40,7 @@ class CtxIndicator : public QObject {
   void addCtxAction(const QString &name);
   void addAction(const QString &name);
   GtkMenuItem *findCtxMenuItem(const int &index);
+  gchar *getIndicatorIconPath();
 
  public slots:
   void setIndicatorLabel(const QString &label);
@@ -58,6 +60,8 @@ class CtxIndicator : public QObject {
   GtkWidget *lastCtxWidget = nullptr;
   int lastCtxIndex = -1;
   bool NO_EMIT_FLAG = false;
+  QTemporaryDir tempDir;
+  gchar *iconName = "kbugscontext";
 
  signals:
   void run();

@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/images">
         <file>res/images/tray.ico</file>
+        <file>res/images/kbugscontext.png</file>
+        <file>res/images/kbugscontext.icns</file>
     </qresource>
 </RCC>

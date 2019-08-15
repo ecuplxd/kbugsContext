@@ -6,11 +6,12 @@ fi
 
 mkdir build && cd build
 
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+INSTALL_PATH="/usr"
+cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH}
 make -j4
 
 if [ "$1" == "install" ]; then
-    sudo rm -rf /usr/bin/kbugscontext
     sudo make install
-    sudo cp ./build/kbugscontext /usr/bin/kbugscontext
+    sudo rm -rf ${INSTALL_PATH}/bin/kbugscontext
+    sudo cp ./kbugscontext ${INSTALL_PATH}/bin/kbugscontext
 fi
