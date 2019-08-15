@@ -61,7 +61,7 @@ class CtxIndicator : public QObject {
   int lastCtxIndex = -1;
   bool NO_EMIT_FLAG = false;
   QTemporaryDir tempDir;
-  gchar *iconName = "kbugscontext";
+  gchar *iconName = const_cast<char *>("kbugscontext");
 
  signals:
   void run();
