@@ -36,11 +36,10 @@ class CtxIndicator : public QObject {
 
   void emitAction(QString actionName);
   void emitCtxIndexChanged(const int &index);
-  inline gchar *qstring2charp(const QString &str);
   void addCtxAction(const QString &name);
   void addAction(const QString &name);
   GtkMenuItem *findCtxMenuItem(const int &index);
-  gchar *getIndicatorIconPath();
+  QString getIndicatorIconPath();
 
  public slots:
   void setIndicatorLabel(const QString &label);

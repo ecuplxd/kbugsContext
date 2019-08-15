@@ -78,19 +78,14 @@ void CtxIndicator::initGTK(int argc, char *argv[]) {
   gtk_widget_show_all(indicatorMenu);
 
   gchar *name = const_cast<char *>("kbugsCurrentContext");
-  gchar *iconPath = getIndicatorIconPath();
+  QString iconPath = getIndicatorIconPath();
+  QByteArray ba = iconPath.toLatin1();
   indicator = app_indicator_new_with_path(
-      name, iconName, APP_INDICATOR_CATEGORY_OTHER, iconPath);
+      name, iconName, APP_INDICATOR_CATEGORY_OTHER, ba.data());
 
   app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
   setIndicatorLabel("");
   app_indicator_set_menu(indicator, GTK_MENU(indicatorMenu));
-}
-
-gchar *CtxIndicator::qstring2charp(const QString &str) {
-  QByteArray ba = str.toLatin1();
-  gchar *ch = ba.data();
-  return ch;
 }
 
 void CtxIndicator::setIndicatorLabel(const QString &label) {
@@ -99,8 +94,6 @@ void CtxIndicator::setIndicatorLabel(const QString &label) {
     str = "  " + label;
   }
 
-  // gchar *ch = qstring2charp(str) my crash
-  //  why str.toLatin1().data() may crash
   QByteArray ba = str.toLatin1();
   gchar *ch = ba.data();
   app_indicator_set_label(indicator, ch, "");
@@ -114,7 +107,8 @@ void CtxIndicator::emitCtxIndexChanged(const int &index) {
 }
 
 void CtxIndicator::addAction(const QString &name) {
-  gchar *menuName = qstring2charp(name);
+  QByteArray ba = name.toLatin1();
+  gchar *menuName = ba.data();
   GtkWidget *menuItem = gtk_menu_item_new_with_label(menuName);
   gtk_menu_shell_append(GTK_MENU_SHELL(indicatorMenu), menuItem);
 
@@ -123,7 +117,8 @@ void CtxIndicator::addAction(const QString &name) {
 }
 
 void CtxIndicator::addCtxAction(const QString &name) {
-  gchar *menuName = qstring2charp(name);
+  QByteArray ba = name.toLatin1();
+  gchar *menuName = ba.data();
   GtkWidget *menuItem = gtk_check_menu_item_new_with_label(menuName);
 
   gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(menuItem), TRUE);
@@ -143,7 +138,9 @@ void CtxIndicator::updateCtxActionName(const int &ctxIndex,
                                        const QString &ctxName) {
   GtkMenuItem *item = findCtxMenuItem(ctxIndex);
   if (item) {
-    gtk_menu_item_set_label(item, qstring2charp(ctxName));
+    QByteArray ba = ctxName.toLatin1();
+    gchar *labelName = ba.data();
+    gtk_menu_item_set_label(item, labelName);
   }
 }
 
@@ -179,7 +176,7 @@ void CtxIndicator::activeCtx(const int &ctxIndex) {
   }
 }
 
-gchar *CtxIndicator::getIndicatorIconPath() {
+QString CtxIndicator::getIndicatorIconPath() {
   QString tempPath = "";
   if (tempDir.isValid()) {
     tempPath = tempDir.path();
@@ -189,6 +186,5 @@ gchar *CtxIndicator::getIndicatorIconPath() {
                 tempPath + "/" + iconNameWithExt);
   }
 
-  gchar *path = qstring2charp(tempPath);
-  return path;
+  return tempPath;
 }
